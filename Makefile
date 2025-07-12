@@ -1,36 +1,48 @@
-﻿CXX := g++
+# Compiler and flags
+CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -I./src
+
+# Directories
 BUILD_DIR := build
-SRC_DIR := src
-TEST_DIR := tests
+SRC_DIR   := src
+TEST_DIR  := tests
 
-SRCS := \
-OBJS := \
+# Source and object files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-TEST_SRCS := \
-TEST_OBJS := \
+TEST_SRCS := $(wildcard $(TEST_DIR)/*.cpp)
+TEST_OBJS := $(TEST_SRCS:$(TEST_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
-all: \/main \/test_pid \/test_plant
+# Default target
+all: $(BUILD_DIR)/main $(BUILD_DIR)/test_pid $(BUILD_DIR)/test_plant
 
-\/main: \
-\t\ \ \$makefile -o \$@
+# Link main executable
+$(BUILD_DIR)/main: $(OBJS) | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-\/%.o: \/%.cpp | \
-\t\ \ -c \$< -o \$@
+# Compile source .cpp → .o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-\/test_pid: \/test_pid.o \/pid.o
-\t\ \ \$makefile -o \$@
+# Link PID test
+$(BUILD_DIR)/test_pid: $(BUILD_DIR)/test_pid.o $(BUILD_DIR)/pid.o | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-\/test_plant: \/test_plant.o \/plant_sim.o
-\t\ \ \$makefile -o \$@
+# Link Plant test
+$(BUILD_DIR)/test_plant: $(BUILD_DIR)/test_plant.o $(BUILD_DIR)/plant_sim.o | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-\/%.o: \/%.cpp | \
-\t\ \ -c \$< -o \$@
+# Compile test .cpp → .o
+$(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-\:
-\tmkdir -p \
+# Create build directory if missing
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
+# Clean up artifacts
 clean:
-\trm -rf \ response.csv response.png
+	rm -rf $(BUILD_DIR) response.csv response.png
 
 .PHONY: all clean
