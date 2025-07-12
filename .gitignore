@@ -1,0 +1,12 @@
+﻿# Build artifacts
+build/
+*.o
+*.exe
+*.out
+
+# CI artifacts
+response.png
+
+# Python artifacts
+__pycache__/
+*.pyc
